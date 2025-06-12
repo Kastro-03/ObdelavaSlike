@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="vaja8.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Filtri</title>
+</head>
+<body>
+
+
+    <div class="navbar">
+        <div class="menuButton">
+            <button onclick="openNav();">
+                <i class="fa fa-bars" style="font-size: 20px;color: white;"></i>
+            </button>
+        </div>
+        <div class="histogram">
+            <button id="histogramButton" onclick="on();">
+                HISTOGRAM
+            </button>
+        </div>
+    </div>
+
+    <div id="overlay">
+        <div id="overlay1">
+            <div class="overlayCol1">
+            <canvas id="graf" onclick="off();">
+
+            </canvas>
+        </div>
+            <div class="overlayCol2">
+                <select name="barvaGraf" id="vnosBarvaGraf" onchange="spremeniBGSELECT();changeGraf();">
+                    <option value="0">RDEČA</option>
+                    <option value="1">ZELENA</option>
+                    <option value="2">MODRA</option>
+                </select><br>
+                <span style="font-family: 'Courier New'; color: white;">ŠTEVILO KOŠEV:</span> 
+                <input type="text" id="stKosov" style="width: 70px;margin-left: 30px;text-align: center;">
+                <br><button onclick="changeGraf();" style="width: 70px; margin-left:30px; border: 1px solid black;border-radius:7px;background-color: green;color: white;">
+                    Ustvari
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sidemenu" class="sidebar">
+        <button class="dropdown-btn">
+            FILTRI
+            <i class="fa fa-caret-down"></i>
+        </button>
+
+        <div class="dropdown-container">
+            <button id="boxBlur">Box blur</button>
+            <button id="gaussian">Gaussian blur</button>
+            <button id="sobel">Sobel</button>
+            <button id="laplace">Laplace</button>
+        </div>
+
+        <button class="dropdown-btn" id="customFilter">
+            CUSTOM FILTER
+            <i class="fa fa-caret-down"></i>
+        </button>
+
+        <div id="dropdown-table">
+            <table>
+                <tr>
+                    <td>
+                        <input type="number" id="f1" value="1"/>
+                    </td>
+                    <td>
+                        <input type="number" id="f2" value="1"/>
+                    </td>
+                    <td>
+                        <input type="number" id="f3" value="1"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="number" id="f4" value="1"/>
+                    </td>
+                    <td>
+                        <input type="number" id="f5" value="1"/>
+                    </td>
+                    <td>
+                        <input type="number" id="f6" value="1"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="number" id="f7" value="1"/>
+                    </td>
+                    <td>
+                        <input type="number" id="f8" value="1"/>
+                    </td>
+                    <td>
+                        <input type="number" id="f9" value="1"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="text-align: center;">
+                        <button style="cursor: pointer;" id="SubmitCustom">Vnos</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <button class="sidebarbtn" id="sivinjska">
+            SIVINJSKA SLIKA
+        </button>
+        <button id="tresholding" class="sidebarbtn">
+            TRESHOLDING
+        </button>
+        <button class="sidebarbtn" id="OPK">
+            ODSTRANI POSAMEZNE KANALE
+            <i class="fa fa-caret-down"></i>
+        </button>
+
+        <div class="dropdown-input" id="dropdown-OPK">
+            <select name="inputOPK" id="inputOPK" onchange="spremeniBGSelectOPK();">
+                <option value="0">RDEČA</option>
+                <option value="1">ZELENA</option>
+                <option value="2">MODRA</option>
+            </select>
+        </div>
+
+        <button class="sidebarbtn" id="PPK">POUDARJANJE POSAMEZNEGA KANALA<i class="fa fa-caret-down"></i></button>
+        <div class="dropdown-input" id="dropdown-PPK">
+            <select name="inputPPK" id="inputPPK">
+                <option value="0">RDEČA</option>
+                <option value="1">ZELENA</option>
+                <option value="2">MODRA</option>
+            </select>
+            <input id="inputPPKrange" type="range" name="PPKvrednost" min="-100" max="100" value="0"/><span id="rangeValuePPK">127</span>
+        </div>
+
+        <button class="sidebarbtn" id="SSS">SPREMINJANJE SVETLOSTI SLIKE<i class="fa fa-caret-down"></i></button>
+        <div class="dropdown-input" id="dropdown-SSS">
+            <input id="inputSSSrange" type="range" name="SSSvrednost" min="-100" max="100" value="0"><span id="rangeValueSSS">0</span>
+            
+        </div>
+
+        <button id="original" class="sidebarbtn">ORIGINAL</button>
+        <button id="BG" class="sidebarbtn" onclick="BG();">OZADJE</button>
+    </div>
+
+<div class="row">
+    <div class="toolbar" id="tool">
+        <div class="col"><i id="risalo" class='fas fa-paint-brush'></i></div>
+        <div class="col"><i id="redo" class="fas fa-redo-alt"></i></div>
+        <div class="col"><i id="undo" class="fa fa-undo"></i></div>
+    </div>
+    <canvas id="can">
+
+    </canvas>
+    <div id="lastnostiCopica">
+        <table>
+            <tr>
+        <td id="barva">Barva:</td><td><input onInput="draw_color = this.value" type="color" name="barvaPisala" id="barvaPisala"></td>
+        <td id="debelinaNapis">Debelina:</td> <td><input type="range" id="sliderDebelina" min="1" max="100" value="1"/></td>
+        <td><span id="debelina"></span></td>
+        <td style="text-align: center;"><button id="clear">POČISTI</button></td>
+        <td><button id="Shrani">SHRANI</button></td>
+    </tr>
+</table>
+    </div>
+</div>
+    <script src="vaja8.js">
+
+    </script>
+<script>
+
+
+//GRAF
+
+
+
+const labels = [];
+const dataGraf = {
+  labels: labels,
+  datasets: [{
+    label: 'ŠTEVILO PIKSLOV V OBMOČJU MED',
+    fontColor: 'rgb(255,255,255)',
+    data: [],
+    backgroundColor: color => {
+        
+        let x=document.getElementById("vnosBarvaGraf").value;
+        x=parseInt(x);
+        
+        let colors;
+        if(x==0)
+        colors = 'rgb(255, 0, 0)';
+
+         if(x==1)
+            colors = 'rgb(0, 255, 0)';
+
+        if(x==2)
+            colors = 'rgb(0, 0, 255)';
+
+            return colors;
+    },
+    borderWidth: 2,
+    barThickness: 30
+  }]
+};
+
+
+const config = {
+  type: 'bar',
+  data: dataGraf,
+  options: {
+    scales: {
+      y: {
+          ticks:{
+              color:  'rgb(255,255,255)',
+          },
+        bordeColor: 'rgb(0,0,0)',
+        beginAtZero: true,
+        grid:{
+            color: 'rgb(255,255,255)'
+        }
+      },
+      x:{
+        ticks:{
+              color:  'rgb(255,255,255)'
+          },
+        grid:{
+            color: 'rgb(255,255,255)'
+        }
+      }
+    }
+  },
+};
+
+const myChart = new Chart(
+    document.getElementById('graf'),
+    config
+  );
+
+function changeGraf(){
+    
+    myChart.data.labels=[];
+    myChart.data.datasets[0].data=[];
+    let st=document.getElementById("stKosov").value;
+    let select=document.getElementById("vnosBarvaGraf").value;
+    let x=255/st;
+    let niz='';
+    let vs=0;
+    let i=0;
+    let count;
+    while(i<st){
+        i++;
+        niz=Math.ceil(vs)+'-'+Math.ceil((vs+x));
+        sp=vs;
+        zg=vs+x;
+
+        vs=vs+x;
+    myChart.data.labels.push(niz);
+    count=countRGB(sp,zg);
+    myChart.data.datasets[0].data.push(count);
+    myChart.update();
+    niz='';
+    }
+}
+
+function countRGB(sp,zg){
+    let x=document.getElementById("vnosBarvaGraf").value;
+    x=parseInt(x);
+    let stevec=0;
+    for(let i=x;i<arrTmp.length-x;i+=4)
+    {
+        if(arrTmp[i]>=sp && arrTmp[i]<=zg){
+            stevec++;
+            
+        }
+    }
+    console.log(stevec);
+    return stevec;
+}
+
+function spremeniBGSELECT(){
+    let select=document.getElementById("vnosBarvaGraf");
+    if(select.value==0)
+    {
+        select.style.backgroundColor="red";
+        myChart.data.backgroundColor='rgba(255,0,0,0)';
+    }
+    if(select.value==1)
+    {
+        select.style.backgroundColor="green";
+        myChart.data.backgroundColor='rgba(0,255,0,0)';
+    }
+    if(select.value==2)
+    {
+        select.style.backgroundColor="blue";
+        myChart.data.backgroundColor='rgba(0,0,255,0)';
+    }
+
+myChart.update();
+}
+
+</script>
+
+    <script>
+
+function on() {
+  document.getElementById("overlay").style.display = "block";
+}
+
+function off() {
+  document.getElementById("overlay").style.display = "none";
+}
+
+let t=false;
+            
+            function openNav()
+            {
+               
+                if(t==false){
+                document.getElementById("sidemenu").style.width="300px";
+                    t=true;
+                }
+                
+               else{
+                document.getElementById("sidemenu").style.width="0";
+                t=false;
+               }
+            }
+
+            let dropdown=document.getElementsByClassName("dropdown-btn");
+            for(let i=0;i<dropdown.length;i++)
+            {
+                dropdown[i].addEventListener("click",function(){
+                    this.classList.toggle("active");
+                    let dropdownContent=this.nextElementSibling;
+                    
+                    if(dropdownContent.style.display==="flex")
+                    {
+                        dropdownContent.style.display = "none";
+                    } else {
+                        dropdownContent.style.display = "flex";
+                    }
+                })
+            }
+            
+                document.getElementById("Shrani").addEventListener("click",function(){
+                    let image=canvas.toDataURL("image/png").replace("image/png","image/octet-stream");
+                    window.location.href=image;
+                });
+            
+
+            let dropdownOPK=document.getElementById("OPK");
+
+                dropdownOPK.addEventListener("click",function(){
+                    this.classList.toggle("active");
+                    let dropdownContent=this.nextElementSibling;
+                    
+                    
+                    if(dropdownContent.style.display==="block")
+                    {
+                        dropdownContent.style.display = "none";
+                    } else {
+                        dropdownContent.style.display = "block";
+                    }
+                })
+
+                let dropdownPPK=document.getElementById("PPK");
+                dropdownPPK.addEventListener("click",function(){
+                    this.classList.toggle("active");
+                    let dropdownContent=this.nextElementSibling;
+                    
+                    if(dropdownContent.style.display==="block")
+                    {
+                        dropdownContent.style.display = "none";
+                    } else {
+                        dropdownContent.style.display = "block";
+                    }
+                })
+
+
+                let slider1=document.getElementById("inputPPKrange");
+                let output1=document.getElementById("rangeValuePPK");
+                output1.innerHTML=slider1.value;
+                
+                slider1.oninput = function() {
+                output1.innerHTML = this.value;
+                spremeniBGSelectPPK();
+                }
+
+                let dropdownSSS=document.getElementById("SSS");
+                dropdownSSS.addEventListener("click",function(){
+                    this.classList.toggle("active");
+                    let dropdownContent=this.nextElementSibling;
+                
+                    if(dropdownContent.style.display==="block")
+                    {
+                        dropdownContent.style.display = "none";
+                    } else {
+                        dropdownContent.style.display = "block";
+                    }
+                })
+
+                let slider2=document.getElementById("inputSSSrange");
+                let output2=document.getElementById("rangeValueSSS");
+                output2.innerHTML=slider2.value;
+                
+                slider2.oninput = function() {
+                output2.innerHTML = this.value;
+                SpremeniSvetlost();
+                }
+                let boolBG=false;
+
+                function BG(){
+                    if(boolBG==false){
+                    document.body.style.backgroundColor="black";
+                    document.getElementById("tool").style.color="black";
+                    document.getElementById("barva").style.color="white";
+                    document.getElementById("debelinaNapis").style.color="white";
+                    document.getElementById("debelina").style.color="white";
+                    boolBG=true;
+                    }
+                    else{
+                    document.body.style.backgroundColor="floralwhite";
+                    document.getElementById("tool").style.color="black";
+                    document.getElementById("barva").style.color="black";
+                    document.getElementById("debelinaNapis").style.color="black";
+                    document.getElementById("debelina").style.color="black";
+                    boolBG=false;
+                    }
+                }
+
+                let slider3=document.getElementById("sliderDebelina");
+                let output3=document.getElementById("debelina");
+                output3.innerHTML=slider3.value;
+                
+                slider3.oninput = function() {
+                draw_width = this.value;
+                output3.innerHTML = this.value;
+                }
+                
+
+
+    </script>
+</body>
+</html>
